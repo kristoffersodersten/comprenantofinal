@@ -1,4 +1,5 @@
 import SwiftUI
+import Alamofire
 
 extension View {
     func pinEdges(to view: some View, insets: EdgeInsets = EdgeInsets()) -> some View {
@@ -16,6 +17,11 @@ extension View {
         self
             .frame(width: width, height: height)
     }
+}
+
+// Example network request using Alamofire
+AF.request("https://api.example.com/data").response { response in
+    debugPrint(response)
 }
 
 

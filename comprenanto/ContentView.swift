@@ -1,66 +1,57 @@
-//
-//  ContentView.swift
-//  comprenanto
-//
-//  Created by Kristoffer Södersten on 2025-01-05.
-//
-
 import SwiftUI
-import SwiftData
 
+/// Main content view for the Comprenanto app.
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
+        NavigationView {
+            VStack(spacing: 20) {
+                welcomeText
+                navigationLinks
             }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
+            .padding()
+            .navigationTitle("Comprenanto")
         }
     }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+    
+    /// Welcome text view.
+    private var welcomeText: some View {
+        Text("Welcome to Comprenanto")
+            .font(.largeTitle)
+            .padding()
+            .accessibilityLabel("Welcome to Comprenanto")
+    }
+    
+    /// Navigation links for app features.
+    private var navigationLinks: some View {
+        VStack(spacing: 10) {
+            navigationButton(title: "Transcription", destination: TranscriptionView(), color: .blue)
+            navigationButton(title: "Translation", destination: TranslationView(), color: .green)
         }
     }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+    
+    /// Creates a navigation button with specified title, destination, and color.
+    /// - Parameters:
+    ///   - title: The title of the button.
+    ///   - destination: The destination view.
+    ///   - color: The background color of the button.
+    /// - Returns: A view representing the navigation button.
+    private func navigationButton<Destination: View>(title: String, destination: Destination, color: Color) -> some View {
+        NavigationLink(destination: destination) {
+            Text(title)
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(color)
+                .foregroundColor(.white)
+                .cornerRadius(10)
+                .accessibilityLabel("\(title) button")
         }
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+/// Preview provider for ContentView.
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }
